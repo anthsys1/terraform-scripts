@@ -1,0 +1,12 @@
+resource "aws_instance" "{##INSTANCE##}" {
+    key_name = "AF-Key"
+    ami = "ami-021d41cbdefc0c994"
+    security_groups = ["{##SECURITY_GROUP##}"]
+    subnet_id = aws_subnet.{##SUBNET##}.id
+    instance_type = "t2.micro"
+    user_data = "${file("{##SERVICE##}")}"
+    
+    tags = {
+            Name = "{##INSTANCE##}"
+    }
+}

@@ -1,0 +1,7 @@
+  ingress {
+    description = "{##DESCRIPTION##}"
+    from_port   = {##PORT##}
+    to_port     = {##PORT##}
+    protocol    = "{##PROTOCOL##}"
+    {##CIDRORSG##}
+  }
