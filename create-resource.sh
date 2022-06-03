@@ -3,6 +3,10 @@
 # NOM;SUBNET;SERVICES;SECURITY_GROUP
 
 generate_instance() {
+
+    # Terraform don't like - in name...
+    sed -i "s|-|_|g" instances_matrix.csv
+
     while IFS=";" read -r column1 column2 column3 column4
     do
 
@@ -31,6 +35,10 @@ generate_instance() {
 }
 
 generate_network() {
+
+    # Terraform don't like - in name...
+    sed -i "s|-|_|g" flow_matrix.csv
+
     while IFS=";" read -r column1 column2 column3 column4 column5
     do
 
