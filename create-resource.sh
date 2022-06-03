@@ -76,7 +76,7 @@ generate_network() {
         sed -i "s/{##PROTOCOL##}/$column3/g" ${column1}.ingress
 
         # Check if ingress need to use CIDR or SG and replace values
-        if [[ "$column4" = *"CIDR"* ]]; then
+        if [[ "$column4" = *"cidr"* ]]; then
             sed -i "s/{##CIDRORSG##}/$(echo 'cidr_blocks = ["{##CIDR##}"]')/g" ${column1}.ingress
             sed -i "s|{##CIDR##}|$column5|g" ${column1}.ingress
         else
