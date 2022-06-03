@@ -4,7 +4,7 @@ resource "aws_instance" "{##INSTANCE##}" {
     security_groups = ["aws_security_group.{##SECURITY_GROUP##}.id"]
     subnet_id = aws_subnet.{##SUBNET##}.id
     instance_type = "t2.micro"
-    user_data = "${file("{##SERVICE##}")}"
+    user_data = "${file("scripts/{##SERVICE##}")}"
     
     tags = {
             Name = "{##INSTANCE##}"
