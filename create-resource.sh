@@ -4,8 +4,9 @@
 
 generate_instance() {
 
-    # Terraform don't like - in name...
+    # Terraform don't like '-' and capital letter in resource name...
     sed -i "s|-|_|g" instances_matrix.csv
+    sed -i 's/.*/\L&/g' instances_matrix.csv
 
     while IFS=";" read -r column1 column2 column3 column4
     do
@@ -36,8 +37,9 @@ generate_instance() {
 
 generate_network() {
 
-    # Terraform don't like - in name...
+    # Terraform don't like '-' and capital letter in resource name...
     sed -i "s|-|_|g" flow_matrix.csv
+    sed -i 's/.*/\L&/g' flow_matrix.csv
 
     while IFS=";" read -r column1 column2 column3 column4 column5
     do
