@@ -44,45 +44,61 @@ generate_network() {
         echo ""
 
         # Create SG file
-        cat template/securitygroup.tf.template >> 10-securitygroup.tf
+        if [ -f "10-securitygroup.tf" ]; then
+            if ! cat "10-securitygroup.tf" | grep -q "$column1" ; then
+                cat template/securitygroup.tf.template >> 10-securitygroup.tf
+            fi
+        else
+            cat template/securitygroup.tf.template >> 10-securitygroup.tf
+        fi
 
         # Remplate Terraform resource name & SG name
-        sed -i "s/{##SECURITY_GROUP##}/$column1/g" 10-securitygroup.tf
-        sed -i "s/{##NAME##}/$column1/g" 10-securitygroup.tf
+        sed -i "s|{##SECURITY_GROUP##}|$column1|g" 10-securitygroup.tf
 
-        # Inject Ingress
-        sed -i '/{##INGRESS##}/e tail template/ingress.template' 10-securitygroup.tf
+        # Ingress
+        echo "TEST"
+        sed -i "s|{SGREPLACE}|$column1|g" 10-securitygroup.tf
+        cat template/ingress.template >> ${column1}.ingress
+
 
         # Replace all ingress values
-        sed -i "s/{##PORT##}/$column2/g" 10-securitygroup.tf
-        sed -i "s/{##PROTOCOL##}/$column3/g" 10-securitygroup.tf
+        sed -i "s/{##PORT##}/$column2/g" ${column1}.ingress
+        sed -i "s/{##PROTOCOL##}/$column3/g" ${column1}.ingress
 
         # Check if ingress need to use CIDR or SG and replace values
         if [[ "$column4" = *"CIDR"* ]]; then
-            sed -i "s/{##CIDRORSG##}/$(echo 'cidr_blocks = ["{##CIDR##}"]')/g" 10-securitygroup.tf
-            sed -i "s|{##CIDR##}|$column5|g" 10-securitygroup.tf
+            sed -i "s/{##CIDRORSG##}/$(echo 'cidr_blocks = ["{##CIDR##}"]')/g" ${column1}.ingress
+            sed -i "s|{##CIDR##}|$column5|g" ${column1}.ingress
         else
-            sed -i "s/{##CIDRORSG##}/$(echo 'security_groups = ["${aws_security_group.{##GROUP##}.id}"]')/g" 10-securitygroup.tf
-            sed -i "s/{##GROUP##}/$column5/g" 10-securitygroup.tf
+            sed -i "s/{##CIDRORSG##}/$(echo 'security_groups = ["${aws_security_group.{##GROUP##}.id}"]')/g" ${column1}.ingress
+            sed -i "s/{##GROUP##}/$column5/g" ${column1}.ingress
         fi
 
 
         # Check which port is used and change description
         if [ $column2 = "22" ]; then
-            sed -i "s/{##DESCRIPTION##}/Allow SSH/g" 10-securitygroup.tf
+            sed -i "s/{##DESCRIPTION##}/Allow SSH/g" ${column1}.ingress
         elif [ $column2 = "80" ]; then
-            sed -i "s/{##DESCRIPTION##}/Allow HTTP/g" 10-securitygroup.tf
+            sed -i "s/{##DESCRIPTION##}/Allow HTTP/g" ${column1}.ingress
         elif [ $column2 = "3306" ]; then
-            sed -i "s/{##DESCRIPTION##}/Allow DB/g" 10-securitygroup.tf
+            sed -i "s/{##DESCRIPTION##}/Allow DB/g" ${column1}.ingress
         else
-            sed -i "s/{##DESCRIPTION##}/Security Group/g" 10-securitygroup.tf
+            sed -i "s/{##DESCRIPTION##}/Security Group/g" ${column1}.ingress
         fi
-
-        # Delete ingress marker
-        sed -i '/{##INGRESS##}/d' 10-securitygroup.tf
-
-
     done < <(tail -n +2 $1)
+
+    for SGROUP in $(ls *.ingress)
+    do
+        echo "SGROUP: " $SGROUP
+
+        GROUP_NAME=$(echo $SGROUP | cut -d"." -f1)
+        echo "GROUP NAME: " $GROUP_NAME
+
+        sed -i "/{##INGRESS-$GROUP_NAME##}/e cat $SGROUP" 10-securitygroup.tf
+        sed -i "/{##INGRESS-$GROUP_NAME##}/d" 10-securitygroup.tf
+        rm $SGROUP
+    done
+
     exit 0
 }
 

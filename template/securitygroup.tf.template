@@ -1,9 +1,9 @@
 resource "aws_security_group" "{##SECURITY_GROUP##}" {
-  name        = "{##NAME##}"
+  name        = "{##SECURITY_GROUP##}"
   description = "Security Group"
   vpc_id      = aws_vpc.main_vpc.id
 
-  {##INGRESS##}
+  {##INGRESS-{SGREPLACE}##}
 
   egress {
     from_port   = 0
@@ -13,6 +13,6 @@ resource "aws_security_group" "{##SECURITY_GROUP##}" {
   }
 
   tags = {
-    Name = "{##NAME##}"
+    Name = "{##SECURITY_GROUP##}"
   }
 }
