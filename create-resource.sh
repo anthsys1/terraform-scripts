@@ -80,7 +80,7 @@ generate_network() {
             sed -i "s/{##CIDRORSG##}/$(echo 'cidr_blocks = ["{##CIDR##}"]')/g" ${column1}.ingress
             sed -i "s|{##CIDR##}|$column5|g" ${column1}.ingress
         else
-            sed -i "s/{##CIDRORSG##}/$(echo 'security_groups = ["aws_security_group.{##GROUP##}.id"]')/g" ${column1}.ingress
+            sed -i "s/{##CIDRORSG##}/$(echo 'security_groups = [aws_security_group.{##GROUP##}.id]')/g" ${column1}.ingress
             sed -i "s/{##GROUP##}/$column5/g" ${column1}.ingress
         fi
 
